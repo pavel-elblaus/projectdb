@@ -1,4 +1,7 @@
-![](https://repository-images.githubusercontent.com/574990736/14caf308-f001-4b58-b254-c945c25fa252)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://projectdb.pro/catalog-pdb/repository-open-graph-projectdb-dark.png">
+  <img alt="" src="https://projectdb.pro/catalog-pdb/repository-open-graph-projectdb.png">
+</picture>
 
 ProjectDB is a user-friendly tool for creating information systems. Efficient and easy tool for creating information systems and solving wide variety of problems of your business. From easy catalogs to advanced systems, which covers all structure of company.
 
