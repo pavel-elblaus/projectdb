@@ -1,0 +1,29 @@
+{
+  "name": "projectdb",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "description": "User friendly tool for creating information systems",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pavel-elblaus/projectdb.git"
+  },
+  "keywords": [
+    "webserver",
+    "microservice"
+  ],
+  "author": "Pavel Elblaus <pavel@elblaus.ru> (https://elblaus.ru/)",
+  "contributors": [
+    "Vyacheslav Elblaus <slv1970@me.com>"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pavel-elblaus/projectdb/issues"
+  },
+  "homepage": "https://www.projectdb.ru/"
+}
