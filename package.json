@@ -1,6 +1,6 @@
 {
   "name": "projectdb",
-  "version": "1.0.0",
+  "version": "2.0.1",
   "engines": {
     "node": ">=14.0.0"
   },
@@ -17,7 +17,7 @@
     "webserver",
     "microservice"
   ],
-  "author": "Pavel Elblaus <pavel@elblaus.ru> (https://elblaus.ru/)",
+  "author": "Pavel Elblaus <pavel@elblaus.ru> (https://elblaus.ru)",
   "contributors": [
     "Vyacheslav Elblaus <slv1970@me.com>"
   ],
@@ -25,7 +25,7 @@
   "bugs": {
     "url": "https://github.com/pavel-elblaus/projectdb/issues"
   },
-  "homepage": "https://www.projectdb.ru/",
+  "homepage": "https://projectdb.pro",
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
   }
