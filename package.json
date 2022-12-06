@@ -25,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/pavel-elblaus/projectdb/issues"
   },
-  "homepage": "https://www.projectdb.ru/"
+  "homepage": "https://www.projectdb.ru/",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  }
 }
