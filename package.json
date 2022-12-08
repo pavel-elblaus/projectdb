@@ -1,11 +1,18 @@
 {
   "name": "projectdb",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "engines": {
     "node": ">=14.0.0"
   },
+  "directories": {
+    "bin": "./bin",
+    "lib": "./lib"
+  },
   "description": "User friendly tool for creating information systems",
   "main": "index.js",
+  "bin": {
+    "projectdb": "bin/projectdb"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -28,5 +35,55 @@
   "homepage": "https://projectdb.pro",
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
+  },
+  "dependencies": {
+    "acme-client": "^5.0.0",
+    "clean-css": "^5.3.1",
+    "clone-deep": "^4.0.1",
+    "command-exists": "^1.2.9",
+    "commander": "^9.4.1",
+    "cookies": "^0.8.0",
+    "d3": "^6.7.0",
+    "ddos": "^0.2.1",
+    "express": "^4.18.1",
+    "file-type": "^16.4.0",
+    "form-data": "^4.0.0",
+    "fs-extra": "^9.1.0",
+    "ftp": "^0.3.10",
+    "glob": "^8.0.3",
+    "html-to-text": "^7.1.1",
+    "htmlspecialchars": "^1.0.5",
+    "imap": "^0.8.19",
+    "ip": "^1.1.8",
+    "jsbarcode": "^3.11.5",
+    "jsdom": "^20.0.0",
+    "mailparser": "^3.5.0",
+    "moment": "^2.29.4",
+    "mssql": "^9.0.1",
+    "mysql": "^2.18.1",
+    "nl2br": "0.0.3",
+    "node-forge": "^1.3.1",
+    "node-lame": "^1.3.2",
+    "nodemailer": "^6.7.8",
+    "object-hash": "^3.0.0",
+    "pg": "^8.8.0",
+    "pidusage": "^3.0.0",
+    "pm2": "^5.2.2",
+    "qrcode": "^1.5.1",
+    "request-ip": "^3.3.0",
+    "selfsigned": "^2.1.1",
+    "send": "^0.18.0",
+    "sharp": "^0.31.0",
+    "socket.io": "^2.4.1",
+    "socket.io-client": "^2.4.0",
+    "sqlite3": "^5.1.2",
+    "ssh2": "^1.11.0",
+    "strip-ansi": "^6.0.0",
+    "systeminformation": "^5.12.6",
+    "uglify-js": "^3.17.0",
+    "unzip-stream": "^0.3.1",
+    "xlsx": "^0.18.5",
+    "xml2js": "^0.4.23",
+    "xmldom": "^0.6.0"
   }
 }

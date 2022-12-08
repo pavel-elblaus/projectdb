@@ -9,36 +9,39 @@ Official website: [https://projectdb.pro](https://projectdb.pro)
 
 ### Installing ProjectDB
 ```bash
-$ npm install projectdb
+$ npm install projectdb -g
 ```
 
 After installing it, run `projectdb --help` without arguments to see list of options:
 
 ```bash
-projectdb [options] <input>
+$ projectdb [options] [command]
 
   Options:
-    --help          # output usage information
-    --version       # output projectdb version
-    --enable        # enable the service to start on boot
-    --disable       # disables starting the service on boot
-    --start         # starting process by name
-    --stop          # stop all active processes or select
-    --pm2-start     # starting process by name on process manager
-    --pm2-stop      # stop all active processes or select on process manager
-
+    -v, --version                     # output projectdb version
+    -h, --help                        # output usage information
+  
+  Commands:
+    start <servername>                # starting process by name
+    enable [options] <servername>     # enable the service to start on boot
+    disable <servername>              # disables starting the service on boot
+    pm2-start [options] <servername>  # starting process by name on process manager
+    pm2-stop [servername]             # stop all active processes or select on process manager
+  
   Examples:
-  # Starting process by name
-  $ projectdb --start PDB-SERVER
-  # Stopping all process
-  $ projectdb --stop
+    # Starting process by name
+    $ projectdb start PDB-SERVER
+    # Help on command
+    $ projectdb pm2-start --help
+    # Stopping all process on process manager
+    $ projectdb pm2-stop
 ```
 
 Works on Linux (stable) & Windows (stable). All Node.js versions are supported starting Node.js 14.X.
 
 ### Updating ProjectDB
 ```bash
-$ npm install projectdb@latest
+$ npm install projectdb@latest -g
 ```
 
 ### Do you have any questions?
