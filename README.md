@@ -15,27 +15,27 @@ $ npm install projectdb -g
 
 After installing it, run `projectdb --help` without arguments to see list of options and commands:
 
-```text
+```console
 Usage: projectdb [options] [command]
 
-::: User friendly tool for creating information systems :::                                 
-                                                                                            
-Options:                                                                                    
-  -v, --version                     # output projectdb version                              
-  -h, --help                        # output usage information                              
-                                                                                            
-Commands:                                                                                   
-  start <servername>                # starting process by name                              
-  enable [options] <servername>     # enable the service to start on boot                   
-  disable <servername>              # disables starting the service on boot                 
-  pm2-start [options] <servername>  # starting process by name on process manager           
+::: User friendly tool for creating information systems :::
+
+Options:
+  -v, --version                     # output projectdb version
+  -h, --help                        # output usage information
+
+Commands:
+  start <servername>                # starting process by name
+  enable [options] <servername>     # enable the service to start on boot
+  disable <servername>              # disables starting the service on boot
+  pm2-start [options] <servername>  # starting process by name on process manager
   pm2-stop [servername]             # stop all active processes or select on process manager
-                                                                                            
-Examples:                                  
-  # Starting process by name               
-  $ projectdb start PDB-SERVER             
-  # Help on command                        
-  $ projectdb pm2-start --help             
+
+Examples:
+  # Starting process by name
+  $ projectdb start PDB-SERVER
+  # Help on command
+  $ projectdb pm2-start --help
   # Stopping all process on process manager
   $ projectdb pm2-stop
 ```
