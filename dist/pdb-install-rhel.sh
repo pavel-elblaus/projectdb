@@ -214,8 +214,7 @@ if [ "$postgresql" = "yes" ]; then
 PostgreSQL configuration:
   port $pg_port
   user postgres
-  password $pg_pass
-"
+  password $pg_pass"
 fi
 echo "
 We hope you enjoy ProjectDB. Please feel free to contact us at any time if you have any questions.
