@@ -1,6 +1,6 @@
 {
   "name": "projectdb",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "engines": {
     "node": ">=14.0.0"
   },
