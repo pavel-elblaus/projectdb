@@ -147,7 +147,7 @@ firewall-cmd --reload > /dev/null
 #                  Installing ProjectDB                    #
 #----------------------------------------------------------#
 
-npm install projectdb -g --no-progress
+npm install projectdb -g
 check_result $? "npm install projectdb failed"
 
 #----------------------------------------------------------#
@@ -161,8 +161,6 @@ if [ "$nginx" = "yes" ]; then
   cp -f /usr/local/lib/node_modules/projectdb/dist/nginx.conf /etc/nginx/
   # generation ssl
   openssl dhparam -out /etc/nginx/dhparam.pem 2048
-  # check config
-  chkconfig nginx on
   # enable autostart
   systemctl enable nginx.service
   # start
@@ -203,9 +201,11 @@ fi
 #----------------------------------------------------------#
 
 echo "
-#-----------------------------------------------------------------------------#
-#       Congratulations, you have just successfully installed ProjectDB       #
-#-----------------------------------------------------------------------------#
+--------------------------------------------------------------------------------------------------
+
+                 Congratulations, you have just successfully installed ProjectDB
+
+--------------------------------------------------------------------------------------------------
 
 "
 projectdb --help
@@ -215,7 +215,6 @@ PostgreSQL configuration:
   port $pg_port
   user postgres
   password $pg_pass
-
 "
 fi
 echo "
@@ -224,6 +223,6 @@ Thank you.
 
 --
 Sincerely yours
-projectdb.pro team
+projectdb team
 
 "
