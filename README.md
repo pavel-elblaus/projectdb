@@ -67,7 +67,7 @@ Currently supported operating systems:
 # Connect to the server as root via SSH
 $ ssh root@your.server
 # Download installation script
-$ curl -O https://raw.github.com/pavel-elblaus/projectdb/master/dist/pdb-install.sh
+$ curl -O https://raw.githubusercontent.com/pavel-elblaus/projectdb/master/dist/pdb-install.sh
 # Run it
 $ bash pdb-install.sh
 ```
