@@ -1,13 +1,16 @@
 #!/bin/bash
-# ProjectDB RHEL/CentOS installer
+# ProjectDB Ubuntu installer
 
 #----------------------------------------------------------#
 #                  Variables/Functions                     #
 #----------------------------------------------------------#
 
 memory=$(grep "MemTotal" /proc/meminfo |tr " " "\n" |grep [0-9])
-release=$(grep -o "[0-9]" /etc/redhat-release |head -n1)
+release="$(lsb_release -s -r)"
+codename="$(lsb_release -s -c)"
 pg_port=5780
+apt=/etc/apt/sources.list.d
+gpg=/etc/apt/trusted.gpg.d
 
 # Request information for installation
 read -p "Would you like install \"Nginx Web Server\" [y/n]: " answer
@@ -55,97 +58,69 @@ fi
 #----------------------------------------------------------#
 
 # Updating system
-yum -y update
-check_result $? "yum update failed"
-# add repo
-repo="*base,*updates,epel"
+apt-get -y upgrade
+check_result $? "apt-get upgrade failed"
 
 # Node.js repository
-curl -fsSL https://rpm.nodesource.com/setup_16.x | bash - > /dev/null
-# add repo
-repo="$repo,nodesource"
+curl -sL https://deb.nodesource.com/setup_16.x | bash - > /dev/null
 
 # PHP 7.2 repository
-rrepo="/etc/yum.repos.d/remi-php72.repo"
-echo "[remi-php72]" > $rrepo
-echo "name=Remi's PHP 7.2 repo" >> $rrepo
-echo "baseurl=http://rpms.remirepo.net/enterprise/$release/php72/\$basearch/" >> $rrepo
-echo "gpgcheck=0" >> $rrepo
-echo "enabled=1" >> $rrepo
-rrepo="/etc/yum.repos.d/remi-safe.repo"
-echo "[remi-safe]" > $rrepo
-echo "name=Safe Remi's repo" >> $rrepo
-echo "baseurl=http://rpms.remirepo.net/enterprise/$release/safe/\$basearch/" >> $rrepo
-echo "gpgcheck=0" >> $rrepo
-echo "enabled=1" >> $rrepo
-# add repo
-repo="$repo,remi-php72,remi-safe"
+apt-get -y install software-properties-common
+check_result $? "apt-get install php repo failed"
+add-apt-repository -y ppa:ondrej/php
 
 # Nginx repository
 if [ "$nginx" = "yes" ]; then
-  nrepo="/etc/yum.repos.d/nginx.repo"
-  echo "[nginx]" > $nrepo
-  echo "name=Nginx repo" >> $nrepo
-  echo "baseurl=http://nginx.org/packages/centos/$release/\$basearch/" >> $nrepo
-  echo "gpgcheck=0" >> $nrepo
-  echo "enabled=1" >> $nrepo
-  # add repo
-  repo="$repo,nginx"
+  echo "deb https://nginx.org/packages/ubuntu $codename nginx" > $apt/nginx.list
+  curl -sS https://nginx.org/keys/nginx_signing.key | gpg --dearmor | tee $gpg/nginx.org.gpg > /dev/null
 fi
 
 # PostgreSQL 12 repository
 if [ "$postgresql" = "yes" ]; then
-  prepo="/etc/yum.repos.d/pgdg12.repo"
-  echo "[pgdg12]" > $prepo
-  echo "name=PostgreSQL 12 repo" >> $prepo
-  echo "baseurl=https://download.postgresql.org/pub/repos/yum/12/redhat/rhel-$release-\$basearch" >> $prepo
-  echo "gpgcheck=0" >> $prepo
-  echo "enabled=1" >> $prepo
-  # add repo
-  repo="$repo,pgdg12"
+  echo "deb https://apt.postgresql.org/pub/repos/apt $codename-pgdg main" > $apt/pgdg.list
+  curl -sS https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | tee $gpg/apt.postgresql.org.gpg > /dev/null
 fi
+
+# Update system packages
+apt-get update
 
 #----------------------------------------------------------#
 #                     Install packages                     #
 #----------------------------------------------------------#
 
 # Software package
-software="htop mc nodejs php-cli php-mbstring php-dom php-gd php-zip lame"
+software="htop mc nodejs php7.2-cli php7.2-mbstring php7.2-xml php7.2-gd php7.2-zip lame ufw"
 # add Nginx
 if [ "$nginx" = "yes" ]; then
   software="$software nginx"
 fi
 # add PostgreSQL 12
 if [ "$postgresql" = "yes" ]; then
-  software="$software postgresql12-server"
+  software="$software postgresql-12"
 fi
 
-# Installing rpm packages
-yum -y --disablerepo=* --enablerepo=$repo install $software
-check_result $? "yum install failed"
+# Installing apt packages
+apt-get -y install $software
+check_result $? "apt-get install failed"
 
 #----------------------------------------------------------#
 #                     Configure system                     #
 #----------------------------------------------------------#
 
-# Disabling SELinux
-if [ -e "/etc/sysconfig/selinux" ]; then
-  sed -i "s/SELINUX=enforcing/SELINUX=disabled/g" /etc/sysconfig/selinux
-  sed -i "s/SELINUX=enforcing/SELINUX=disabled/g" /etc/selinux/config
-  setenforce 0 2 > /dev/null
-fi
-
-# Enable firewalld
-systemctl enable firewalld.service
-systemctl start firewalld.service
+# Enable firewall
+ufw default deny incoming > /dev/null
+ufw default allow outgoing > /dev/null
+# from ssh
+ufw allow 22 > /dev/null
 # from webserver
-firewall-cmd --permanent --zone=public --add-port=80/tcp > /dev/null
-firewall-cmd --permanent --zone=public --add-port=443/tcp > /dev/null
+ufw allow 80 > /dev/null
+ufw allow 443 > /dev/null
 # from database
 if [ "$postgresql" = "yes" ]; then
-  firewall-cmd --permanent --zone=public --add-port=$pg_port/tcp > /dev/null
+  ufw allow $pg_port > /dev/null
 fi
-firewall-cmd --reload > /dev/null
+# start
+ufw --force enable
 
 #----------------------------------------------------------#
 #                  Installing ProjectDB                    #
@@ -178,25 +153,19 @@ fi
 
 if [ "$postgresql" = "yes" ]; then
   pg_pass=$(gen_pass)
-  # init
-  /usr/pgsql-12/bin/postgresql-12-setup initdb
-  # enable autostart
-  systemctl enable postgresql-12.service
-  # start
-  systemctl start postgresql-12.service
   # set password
   sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD '$pg_pass'"
   # add access
-  pg_hba="/var/lib/pgsql/12/data/pg_hba.conf"
+  pg_hba="/etc/postgresql/12/main/pg_hba.conf"
   echo "# Allow from ProjectDB" >> $pg_hba
   echo "host    all             all             0.0.0.0/0               md5" >> $pg_hba
   # add config
-  pg_config="/var/lib/pgsql/12/data/postgresql.conf"
+  pg_config="/etc/postgresql/12/main/postgresql.conf"
   echo "# Configuration from ProjectDB" >> $pg_config
   echo "listen_addresses = '*'" >> $pg_config
   echo "port = $pg_port" >> $pg_config
   # restart
-  systemctl restart postgresql-12.service
+  systemctl restart postgresql
   check_result $? "postgresql start failed"
 fi
 
