@@ -7,7 +7,14 @@ ProjectDB is a user-friendly tool for creating information systems. Efficient an
 
 Official website: [https://projectdb.pro](https://projectdb.pro)
 
-## Installing ProjectDB
+## Requirements
+
+- Linux or Windows (stable)
+- Node.js 16.x or newer
+- PHP 5.6 or 7.0 - 7.2 and `mbstring, dom, gd, zip` modules
+- LAME (optional) [view installation instructions](https://github.com/devowlio/node-lame#install-on-debian)
+
+## Installation
 You can install it with `npm`:
 ```bash
 $ npm install projectdb -g
@@ -39,36 +46,32 @@ Examples:
   # Stopping all process on process manager
   $ projectdb pm2-stop
 ```
+We hope you enjoy ProjectDB. Please feel free to [contact us](https://projectdb.pro/question/) at any time if you have any questions.
+Thank you.
 
-Works on Linux (stable) & Windows (stable). All Node.js versions are supported starting Node.js 14.X.
-
-### Updating ProjectDB
+### Updating ProjectDB to latest version
 ```bash
 $ npm install projectdb@latest -g
 ```
 
-## Installing dependent LAME package
+## Quick start on your new server
 
-If you have not installed [LAME](http://lame.sourceforge.net/) yet, please use the following instruction.
+Currently supported operating systems:
+- RHEL/CentOS 7
+- Debian 10, 11
+- Ubuntu 18.04, 20.04, 22.04
 
-### Install on Debian
+### How to install ProjectDB
+
 ```bash
-$ sudo apt-get install lame
+# Connect to the server as root via SSH
+$ ssh root@your.server
+# Download installation script
+$ curl -O https://raw.github.com/pavel-elblaus/projectdb/master/dist/pdb-install.sh
+# Run it
+$ bash pdb-install.sh
 ```
-### Install on CentOS
-```bash
-$ yum install lame
-```
-
-### Install on MacOS with brew
-```bash
-$ brew install lame
-```
-
-### Install on Windows
-1. Go to the the [Lame Download Page](https://lame.buanzo.org/#lamewindl) and download the EXE or ZIP file.
-2. Navigate to the directory Lame was installed in (most commonly `C:\Program Files (x86)\Lame For Audacity`).
-3. Add the directory to your [Environment Variables](https://www.java.com/en/download/help/path.xml).
+The ProjectDB can be installed on a RHEL, CentOS, Debian and Ubuntu server. For a smooth installation you will need clean system "minimal install base".
 
 ## Do you have any questions?
 Ask a Question [here](https://projectdb.pro/question/)
