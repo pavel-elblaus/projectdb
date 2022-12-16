@@ -1,6 +1,6 @@
-'use strict';
+"use strict";
+// импорт базовых модулей
+const { init } = require("./lib/app.js");
 
-module.exports = function ()
-{
-	console.log("Coming Soon")
-}
+// экспорт
+module.exports = init;
