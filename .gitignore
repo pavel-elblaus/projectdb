@@ -1,4 +1,8 @@
 .idea
 /tmp
+/domains
+/vendor
 /node_modules
 package-lock.json
+composer.json
+composer.lock
