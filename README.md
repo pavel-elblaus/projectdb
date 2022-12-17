@@ -36,6 +36,7 @@ Commands:
   enable [options] <servername>     # enable the service to start on boot
   disable <servername>              # disables starting the service on boot
   pm2-start [options] <servername>  # starting process by name on process manager
+  pm2-restart <servername>          # restarting process by name on process manager
   pm2-stop [servername]             # stop all active processes or select on process manager
 
 Examples:
