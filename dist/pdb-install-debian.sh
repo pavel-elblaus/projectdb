@@ -5,7 +5,7 @@
 #                  Variables/Functions                     #
 #----------------------------------------------------------#
 
-memory=$(grep "MemTotal" /proc/meminfo |tr " " "\n" |grep [0-9])
+memory=$(grep "SwapTotal" /proc/meminfo |tr " " "\n" |grep [0-9])
 release=$(cat /etc/debian_version|grep -o [0-9]|head -n1)
 codename="$(cat /etc/os-release |grep VERSION= |cut -f 2 -d \(|cut -f 1 -d \))"
 pg_port=5780

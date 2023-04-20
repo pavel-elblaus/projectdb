@@ -5,7 +5,7 @@
 #                  Variables/Functions                     #
 #----------------------------------------------------------#
 
-memory=$(grep "MemTotal" /proc/meminfo |tr " " "\n" |grep [0-9])
+memory=$(grep "SwapTotal" /proc/meminfo |tr " " "\n" |grep [0-9])
 release=$(grep -o "[0-9]" /etc/redhat-release |head -n1)
 pg_port=5780
 
