@@ -21,7 +21,7 @@ fi
 
 # Function password generation
 gen_pass() {
-  chars="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_-=+~*"
+  chars="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
   length=20
   while [ ${n:=1} -le $length ]; do
     pass="$pass${chars:$(($RANDOM%${#chars})):1}"
