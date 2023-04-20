@@ -117,7 +117,7 @@ if [ "$nginx" = "yes" ]; then
 fi
 # add PostgreSQL 12
 if [ "$postgresql" = "yes" ]; then
-  software="$software postgresql12-server"
+  software="$software postgresql12-server postgresql12-contrib"
 fi
 
 # Installing rpm packages
