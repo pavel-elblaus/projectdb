@@ -61,7 +61,7 @@ check_result $? "yum update failed"
 repo="*base,*updates,epel"
 
 # Node.js repository
-curl -fsSL https://rpm.nodesource.com/setup_16.x | bash - > /dev/null
+curl -fsSL https://rpm.nodesource.com/setup_18.x | bash - > /dev/null
 # add repo
 repo="$repo,nodesource"
 

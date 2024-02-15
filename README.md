@@ -7,10 +7,15 @@ ProjectDB is a user-friendly tool for creating information systems. Efficient an
 
 Official website: [https://projectdb.pro](https://projectdb.pro)
 
+[![npm Package](https://img.shields.io/npm/v/projectdb.svg?color=00a7e1)](https://www.npmjs.org/package/projectdb)
+[![downloads per year](https://img.shields.io/npm/dy/projectdb.svg)](https://npmcharts.com/compare/projectdb?minimal=true)
+[![GitHub Release](https://img.shields.io/github/v/release/pavel-elblaus/projectdb?color=04a589)](https://github.com/pavel-elblaus/projectdb/releases/latest)
+[![License](https://img.shields.io/npm/l/projectdb.svg)](https://github.com/pavel-elblaus/projectdb/blob/master/LICENSE)
+
 ## Requirements
 
 - Linux or Windows (stable)
-- Node.js 16.x or newer
+- Node.js 18.x or newer
 - PHP 5.6 or 7.0 - 7.2 and `mbstring, dom, gd, zip` modules
 - LAME (optional) [view installation instructions](https://github.com/devowlio/node-lame#install-on-debian)
 
@@ -32,7 +37,7 @@ Options:
   -h, --help                        # output usage information
 
 Commands:
-  start <servername>                # starting process by name
+  start [options] <servername>      # starting process by name
   enable [options] <servername>     # enable the service to start on boot
   disable <servername>              # disables starting the service on boot
   pm2-start [options] <servername>  # starting process by name on process manager
@@ -54,6 +59,9 @@ Thank you.
 ```bash
 $ npm install projectdb@latest -g
 ```
+
+### Install application not last release
+If necessary, you can install the desired release by copying from the [GitHub repository](https://github.com/pavel-elblaus/projectdb/releases) to the application's working directory `./lib/app.so`
 
 ## Quick start on your new server
 

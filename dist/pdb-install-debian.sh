@@ -62,7 +62,7 @@ apt-get -y upgrade
 check_result $? "apt-get upgrade failed"
 
 # Node.js repository
-curl -sL https://deb.nodesource.com/setup_16.x | bash - > /dev/null
+curl -sL https://deb.nodesource.com/setup_18.x | bash - > /dev/null
 
 # PHP 7.2 repository
 echo "deb https://packages.sury.org/php/ $codename main" > $apt/php.list
