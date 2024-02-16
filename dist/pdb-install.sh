@@ -5,9 +5,8 @@
 #----------------------------------------------------------#
 #          Currently supported operating systems           #
 #----------------------------------------------------------#
-#   RHEL/CentOS 7                                          #
-#   Debian 10, 11                                          #
-#   Ubuntu 18.04, 20.04, 22.04                             #
+#   Debian 10, 11, 12                                      #
+#   Ubuntu 20.04, 22.04                                    #
 #----------------------------------------------------------#
 
 # Check root
@@ -20,7 +19,10 @@ fi
 case $(head -n1 /etc/issue | cut -f 1 -d " ") in
   Debian)     type="debian" ;;
   Ubuntu)     type="ubuntu" ;;
-  *)          type="rhel" ;;
+  *)
+    echo "[PDB][ERROR] sorry, but this operating system is not supported for automatic installation."
+    exit 1
+  ;;
 esac
 
 # Check curl

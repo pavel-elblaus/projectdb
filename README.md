@@ -66,9 +66,8 @@ If necessary, you can install the desired release by copying from the [GitHub re
 ## Quick start on your new server
 
 Currently supported operating systems:
-- RHEL/CentOS 7
-- Debian 10, 11
-- Ubuntu 18.04, 20.04, 22.04
+- Debian 10, 11, 12
+- Ubuntu 20.04, 22.04
 
 ### How to install ProjectDB
 
@@ -80,7 +79,7 @@ $ curl -O https://raw.githubusercontent.com/pavel-elblaus/projectdb/master/dist/
 # Run it
 $ bash pdb-install.sh
 ```
-The ProjectDB can be installed on a RHEL, CentOS, Debian and Ubuntu server. For a smooth installation you will need clean system "minimal install base".
+ProjectDB can be automatically installed on a Debian or Ubuntu server. For a smooth installation, you will need a clean "minimal install base" system.
 
 ## Do you have any questions?
 Ask a Question [here](https://projectdb.pro/question/)
