@@ -12,6 +12,12 @@ pg_port=5780
 apt=/etc/apt/sources.list.d
 gpg=/etc/apt/trusted.gpg.d
 
+# Check support OS - Debian 10, 11, 12
+if [ ! "$codename" = "buster" ] && [ ! "$codename" = "bullseye" ] && [ ! "$codename" = "bookworm" ]; then
+  echo "[PDB][ERROR] sorry, but this ($codename) version of the operating system is not supported for automatic installation."
+  exit 1
+fi
+
 # Request information for installation
 read -p "Would you like install \"Nginx Web Server\" [y/n]: " answer
 if [ "$answer" = "y" ] || [ "$answer" = "Y"  ]; then
@@ -74,7 +80,7 @@ if [ "$nginx" = "yes" ]; then
   curl -sS https://nginx.org/keys/nginx_signing.key | gpg --dearmor | tee $gpg/nginx.org.gpg > /dev/null
 fi
 
-# PostgreSQL 12 repository
+# PostgreSQL 16 repository
 if [ "$postgresql" = "yes" ]; then
   echo "deb https://apt.postgresql.org/pub/repos/apt $codename-pgdg main" > $apt/pgdg.list
   curl -sS https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | tee $gpg/apt.postgresql.org.gpg > /dev/null
@@ -93,9 +99,9 @@ software="sudo htop mc nodejs php7.2-cli php7.2-mbstring php7.2-xml php7.2-gd ph
 if [ "$nginx" = "yes" ]; then
   software="$software nginx"
 fi
-# add PostgreSQL 12
+# add PostgreSQL 16
 if [ "$postgresql" = "yes" ]; then
-  software="$software postgresql-12"
+  software="$software postgresql-16"
 fi
 
 # Installing apt packages
@@ -155,11 +161,11 @@ if [ "$postgresql" = "yes" ]; then
   # set password
   sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD '$pg_pass'"
   # add access
-  pg_hba="/etc/postgresql/12/main/pg_hba.conf"
+  pg_hba="/etc/postgresql/16/main/pg_hba.conf"
   echo "# Allow from ProjectDB" >> $pg_hba
   echo "host    all             all             0.0.0.0/0               md5" >> $pg_hba
   # add config
-  pg_config="/etc/postgresql/12/main/postgresql.conf"
+  pg_config="/etc/postgresql/16/main/postgresql.conf"
   echo "# Configuration from ProjectDB" >> $pg_config
   echo "listen_addresses = '*'" >> $pg_config
   echo "port = $pg_port" >> $pg_config
