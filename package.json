@@ -1,6 +1,6 @@
 {
   "name": "projectdb",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "config": {
     "PDB_VERSION": "15.0.0",
     "PDB_PASSWORD": "sL:KJdsa09ukjNJ%@KV7itdsf$987YTGFD54ew3)($"
@@ -55,7 +55,7 @@
     "form-data": "^4.0.0",
     "fs-extra": "^11.2.0",
     "ftp": "^0.3.10",
-    "glob": "^10.3.10",
+    "glob": "^8.1.0",
     "html-to-text": "^9.0.5",
     "imap": "^0.8.19",
     "ip": "^1.1.8",
