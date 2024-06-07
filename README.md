@@ -16,7 +16,7 @@ Official website: [https://projectdb.pro](https://projectdb.pro)
 
 - Linux or Windows (stable)
 - Node.js 18.x or newer
-- PHP 5.6 or 7.0 - 7.2 and `mbstring, dom, gd, zip` modules
+- PHP 7.2 and `mbstring, dom, gd, zip` modules
 - LAME (optional) [view installation instructions](https://github.com/devowlio/node-lame#install-on-debian)
 
 ## Installation
