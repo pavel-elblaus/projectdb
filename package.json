@@ -1,9 +1,9 @@
 {
   "name": "projectdb",
-  "version": "3.3.1",
+  "version": "3.3.2",
   "config": {
-    "PDB_VERSION": "15.0.0",
-    "PDB_PASSWORD": "sL:KJdsa09ukjNJ%@KV7itdsf$987YTGFD54ew3)($"
+    "PDB_VERSION": "16.0.0",
+    "PDB_PASSWORD": "KJ:d98dfwe7632GJH6534*&wqef^fytasd45JFGHs2"
   },
   "engines": {
     "node": ">=18.0.0"
