@@ -1,9 +1,9 @@
 {
   "name": "projectdb",
-  "version": "3.3.2",
+  "version": "3.3.3",
   "config": {
-    "PDB_VERSION": "16.0.0",
-    "PDB_PASSWORD": "KJ:d98dfwe7632GJH6534*&wqef^fytasd45JFGHs2"
+    "PDB_VERSION": "17.0.0",
+    "PDB_PASSWORD": "KJ:d98dfwe7JHg76JHG76&%9*Ghu$fj1sd45JFGHs2"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -12,7 +12,7 @@
     "bin": "./bin",
     "lib": "./lib"
   },
-  "description": "User friendly tool for creating information systems",
+  "description": "User-friendly tool for developing information systems.",
   "main": "index.js",
   "bin": {
     "projectdb": "bin/projectdb"
@@ -78,6 +78,7 @@
     "pm2": "^5.4.2",
     "qrcode": "^1.5.4",
     "request-ip": "^3.3.0",
+    "require-from-string": "^2.0.2",
     "selfsigned": "^2.4.1",
     "send": "^1.1.0",
     "sharp": "^0.33.5",
