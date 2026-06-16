@@ -98,7 +98,7 @@ apt-get update
 #----------------------------------------------------------#
 
 # Software package
-software="htop mc nodejs php7.2-cli php7.2-mbstring php7.2-xml php7.2-gd php7.2-zip lame ufw"
+software="htop mc nodejs php7.2-cli php7.2-mbstring php7.2-xml php7.2-gd php7.2-zip lame ufw build-essential"
 # add Nginx
 if [ "$nginx" = "yes" ]; then
   software="$software nginx"
