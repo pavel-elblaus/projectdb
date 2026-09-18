@@ -43,6 +43,7 @@ function run(args, options = {}) {
 	if(options.service) files.set(service, "ProjectDB unit");
 	let apps = (options.apps || []).map(name => ({ name, pid: 100 }));
 	if(options.dump !== null) files.set(dump, options.dump || apps.map(({ name }) => ({ name })));
+	if(options.rawDump !== undefined) files.set(dump, options.rawDump);
 	let alive = options.alive !== false;
 	let agentAlive = options.agentAlive == null ? options.linked !== false : options.agentAlive;
 	let enabled = options.unit !== false;
@@ -57,6 +58,12 @@ function run(args, options = {}) {
 		ensureDirSync() {},
 		readFileSync(path) { if(!files.has(path)) throw missing(); return files.get(path); },
 		pathExists(path, cb) { cb(null, files.has(path)); },
+		readFile(path, encoding, cb) {
+			if(fail("read")) return cb(fail("read"));
+			if(!files.has(path)) return cb(missing());
+			const value = files.get(path);
+			cb(null, options.badDump ? "[invalid" : typeof value === "string" ? value : JSON.stringify(value));
+		},
 		readJson(path, cb) {
 			if(path === dump && options.badDump) return cb(new Error("Invalid JSON"));
 			cb(files.has(path) ? null : missing(), files.get(path));
@@ -653,4 +660,31 @@ test("systemd application output goes to ProjectDB logs",()=>{
  const unit=r.files.get(r.service);
  assert.match(unit,/^StandardOutput=append:\/root\/\.projectdb\/log\/pdb\.demo\.log$/m);
  assert.match(unit,/^StandardError=append:\/root\/\.projectdb\/log\/pdb\.demo\.log$/m);
+});
+
+// Пустой файл PM2 (в том числе только пробелы) не должен блокировать запуск приложения.
+for(const command of ["start", "service-start"]) {
+	for(const rawDump of ["", " \t\r\n", "\uFEFF", "[]", "\uFEFF[]"]) {
+		test(command + ": empty PM2 dump " + JSON.stringify(rawDump), () => {
+			const result = run([command, "demo"], {alive: false, rawDump});
+			cleaned(result, true, true);
+			if(command === "service-start") assert.ok(result.events.includes("systemctl:restart pdb.demo.service"));
+		});
+	}
+}
+// Обрыв записи JSON, неверный тип и ошибка чтения сохраняют исходный файл и блокируют запуск службы.
+for(const rawDump of ['[{"name":"other"}', '{}', 'null']) {
+	test("damaged PM2 dump is preserved: " + rawDump, () => {
+		const result = run(["service-start", "demo"], {alive: false, rawDump});
+		assert.ok(result.error);
+		assert.equal(result.files.get(result.dump), rawDump);
+		assert.equal(result.enabled, true);
+		assert.equal(result.events.includes("systemctl:restart pdb.demo.service"), false);
+	});
+}
+test("PM2 dump read failure does not overwrite saved applications", () => {
+	const result = run(["service-start", "demo"], {alive: false, rawDump: '[{"name":"other"}]', fail: "read"});
+	assert.ok(result.error);
+	assert.equal(result.files.get(result.dump), '[{"name":"other"}]');
+	assert.equal(result.enabled, true);
 });
