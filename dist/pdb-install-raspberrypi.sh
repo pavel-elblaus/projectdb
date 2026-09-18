@@ -776,6 +776,10 @@ write_usb_script() {
   write_atomic "$PATH_CLONE_TO/virtual-usb.sh" 755 <<'PDB_USB'
 #!/bin/bash
 set -euo pipefail
+# Cron использует ограниченный PATH; добавляем системные каталоги
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export PATH
+# Параметры виртуального USB
 PATH_USB=/opt/piusb.bin
 PATH_USB_MOUNT=/mnt/usb
 PATH_CLONE_TO=/opt
