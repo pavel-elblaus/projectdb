@@ -82,7 +82,7 @@
     "selfsigned": "^2.4.1",
     "send": "^1.2.1",
     "sharp": "^0.33.5",
-    "socket.io": "2.1.1",
+    "socket.io": "2.5.1",
     "socket.io-client": "2.1.1",
     "sqlite3": "^5.1.7",
     "ssh2": "^1.17.0",
