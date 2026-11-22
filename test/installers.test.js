@@ -180,7 +180,10 @@ test('installers: supported OS matrix and early rejection', () => {
     ['ubuntu', '24.04', 'noble', 'ubuntu'],
     ['ubuntu', '24.04', 'jammy', null],
     ['ubuntu', '22.04', 'noble', null],
-    ['ubuntu', '26.04', 'resolute', null],
+    ['ubuntu', '26.04', 'resolute', 'ubuntu'],
+    ['ubuntu', '26.04', 'noble', null],
+    ['ubuntu', '24.04', 'resolute', null],
+    ['ubuntu', '26.10', 'stonking', null],
     ['linuxmint', '22.04', 'jammy', null],
     ['debian', '10', 'bookworm', null],
     ['', '', '', null],
@@ -194,11 +197,12 @@ test('installers: supported OS matrix and early rejection', () => {
       ? source.slice(source.indexOf('case "${ID:-}'), source.indexOf('# Проверка завершения установки'))
       : source.slice(source.indexOf('# Проверка поддерживаемой ОС'), source.indexOf('# Запрос параметров установки'));
     for (const [id, version, codename, accepted] of cases) {
-      const script = `ID='${id}'\nVERSION_ID='${version}'\nVERSION_CODENAME='${codename}'\ncodename="$VERSION_CODENAME"\nfail() { exit "$1"; }\n` + validation + '\necho ACCEPTED\n';
+      const script = `ID='${id}'\nVERSION_ID='${version}'\nVERSION_CODENAME='${codename}'\ncodename="$VERSION_CODENAME"\nfail() { exit "$1"; }\n` + validation + '\necho ACCEPTED "${type:-}"\n';
       const result = run(script, repo);
       const expected = accepted !== null && (installer === 'launcher' || accepted === installer);
       assert.equal(result.status === 0, expected, `${installer}: ${id} ${version} ${codename}: ${result.stdout} ${result.stderr}`);
       assert.equal(result.stdout.includes('ACCEPTED'), expected);
+      if (expected && installer === 'launcher') assert.equal(result.stdout.trim(), `ACCEPTED ${accepted}`);
     }
   }
 });
@@ -453,12 +457,14 @@ for (const os of ['debian', 'ubuntu']) {
       fs.mkdirSync(path.join(dir, 'state/done'), {recursive: true});
       fs.mkdirSync(path.join(dir, 'nginx/conf.d'), {recursive: true});
       fs.writeFileSync(path.join(dir, 'nginx/nginx.conf'), 'original');
-      fs.writeFileSync(path.join(dir, 'projectdb.conf'), 'projectdb');
+      fs.mkdirSync(path.join(dir, 'global modules/projectdb/dist'), {recursive: true});
+      fs.writeFileSync(path.join(dir, 'global modules/projectdb/dist/nginx.conf'), 'projectdb');
       const functions = ['prepare_nginx_config', 'prepare_nginx_tls', 'configure_nginx'].map(name => installerFunctions(source, name)).join('\n')
         .replaceAll('/etc/nginx', root + '/nginx')
-        .replaceAll('/usr/lib/node_modules/projectdb/dist/nginx.conf', root + '/projectdb.conf');
+        .replaceAll('/usr/lib/node_modules/projectdb/dist/nginx.conf', '"' + root + '/global modules/projectdb/dist/nginx.conf"');
       const workflow = helpers + `\nstate_dir='${root}/state'\n` + functions + `
 run_command() { "$@"; }
+npm() { [ "$*" = 'root -g' ] && printf '%s\n' "$PWD/global modules"; }
 openssl() {
   if [ "$2" = -out ]; then
     echo generate >> calls
@@ -475,6 +481,7 @@ run_stage nginx Nginx configure_nginx
       let result = run(workflow, dir);
       assert.notEqual(result.status, 0);
       assert.equal(fs.readFileSync(path.join(dir, '.projectdb-test/backup/nginx.conf.original'), 'utf8'), 'original');
+      assert.equal(fs.readFileSync(path.join(dir, 'nginx/nginx.conf'), 'utf8'), 'projectdb');
       assert.equal(fs.existsSync(path.join(dir, 'state/done/nginx-config')), true);
       assert.equal(fs.existsSync(path.join(dir, 'state/done/nginx-tls')), false);
       // A completed configuration must not be overwritten by the resumed stage.
@@ -624,8 +631,12 @@ pg_port=5780
 test('installers: shared functions stay identical between operating systems', () => {
   const debian = fs.readFileSync(path.join(repo, 'dist/pdb-install-debian.sh'), 'utf8');
   const ubuntu = fs.readFileSync(path.join(repo, 'dist/pdb-install-ubuntu.sh'), 'utf8');
+  const osSpecific = [
+    'add_php_repository', 'add_nginx_repository', 'add_pg_repository',
+    'configure_repositories', 'install_packages', 'prepare_nginx_config',
+  ];
   for (const [, name] of debian.matchAll(/^(\w+)\(\) \{/gm)) {
-    if (['add_php_repository', 'add_nginx_repository', 'add_pg_repository'].includes(name)) continue;
+    if (osSpecific.includes(name)) continue;
     assert.equal(installerFunctions(debian, name), installerFunctions(ubuntu, name), name);
   }
 });
@@ -1013,30 +1024,106 @@ run_command /usr/bin/bash -c 'trap "" TERM INT; while :; do sleep 0.2; done'
 }
 
 // ---------------------------------------------------------
-// Настройки и продолжение на Ubuntu 24.04
+// Репозитории и пакеты Ubuntu
 // ---------------------------------------------------------
 
 // Для Ubuntu 24.04 в файлах источников должны использоваться noble и noble-pgdg.
-test('ubuntu 24.04: repositories use noble and noble-pgdg', () => {
+test('ubuntu 24.04: repositories use the PHP PPA, noble and noble-pgdg', () => {
   const source = fs.readFileSync(path.join(repo, 'dist/pdb-install-ubuntu.sh'), 'utf8');
   const helpers = source.slice(source.indexOf('set -Eeuo'), source.indexOf('if [ "$EUID"'));
   const dir = fs.mkdtempSync(path.join(repo, '.installer-test-'));
   try {
-    const script = helpers + '\n' + ['add_nginx_repository', 'add_pg_repository'].map(name => installerFunctions(source, name)).join('\n') + `
+    const script = helpers + '\n' + ['add_php_repository', 'add_nginx_repository', 'add_pg_repository']
+      .map(name => installerFunctions(source, name)).join('\n') + `
 codename=noble
 apt="$PWD"
 gpg="$PWD"
+install_missing() { printf 'TOOLS %s\n' "$*"; }
+run_command() { printf 'COMMAND %s\n' "$*"; }
 curl() { printf key; }
 gpg() { cat; }
+add_php_repository
 add_nginx_repository
 add_pg_repository
 `;
     const result = run(script, dir);
     assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.equal(result.stdout, 'TOOLS software-properties-common\nCOMMAND add-apt-repository -y ppa:ondrej/php\n');
+    assert.equal(fs.existsSync(path.join(dir, 'php.list')), false);
     assert.equal(fs.readFileSync(path.join(dir, 'nginx.list'), 'utf8'), 'deb https://nginx.org/packages/ubuntu noble nginx\n');
     assert.equal(fs.readFileSync(path.join(dir, 'pgdg.list'), 'utf8'), 'deb https://apt.postgresql.org/pub/repos/apt noble-pgdg main\n');
   } finally { fs.rmSync(dir, {recursive: true, force: true}); }
 });
+
+for (const [enabled, keyAvailable] of [[false, true], [true, true], [false, false]]) {
+  const scenario = keyAvailable ? `optional services ${enabled ? 'enabled' : 'disabled'}` : 'keyring download failure';
+  test(`ubuntu 26.04: PHP 7.2 from DEB.SURY.ORG with ${scenario}`, () => {
+    const source = fs.readFileSync(path.join(repo, 'dist/pdb-install-ubuntu.sh'), 'utf8');
+    const helpers = source.slice(source.indexOf('set -Eeuo'), source.indexOf('if [ "$EUID"'));
+    const validation = source.slice(source.indexOf('# Проверка поддерживаемой ОС'), source.indexOf('# Запрос параметров установки'));
+    const functions = ['add_php_repository', 'add_nginx_repository', 'add_pg_repository',
+      'configure_repositories', 'install_packages', 'verify_installation']
+      .map(name => installerFunctions(source, name)).join('\n');
+    const dir = fs.mkdtempSync(path.join(repo, '.installer-test-'));
+    try {
+      const script = helpers + validation + functions + `
+apt="$PWD"
+gpg="$PWD"
+state_dir="$PWD"
+nginx=${enabled ? 'yes' : 'no'}
+postgresql="$nginx"
+pg_port=5780
+run_once() { shift; "$@"; }
+apt-get() { printf 'APT %s\n' "$*"; }
+curl() {
+  if [ "$2" = -o ]; then
+    [ "$4" = https://packages.sury.org/debsuryorg-archive-keyring.deb ]
+    ${keyAvailable ? 'printf keyring > "$3"' : 'return 22'}
+  else
+    printf key
+  fi
+}
+dpkg() {
+  [ "$1" = -i ]
+  [ "$(cat "$2")" = keyring ]
+  printf 'KEYRING installed\n'
+}
+gpg() { cat; }
+install_missing() { printf 'PACKAGES %s\n' "$*"; }
+node() { :; }
+projectdb() { :; }
+php7.2() { printf 'PHP %s\n' "$1"; }
+nginx() { :; }
+systemctl() { :; }
+sudo() { :; }
+configure_repositories
+install_packages
+verify_installation
+`;
+      const result = run('ID=ubuntu\nVERSION_ID=26.04\ncodename=resolute\n' + script, dir);
+      assert.equal(fs.readdirSync(dir).some(name => name.startsWith('.php-keyring.')), false);
+      const phpSource = path.join(dir, 'php.list');
+      if (!keyAvailable) {
+        assert.equal(result.status, 22, result.stdout + result.stderr);
+        assert.equal(fs.existsSync(phpSource), false);
+        assert.doesNotMatch(result.stdout, /KEYRING|APT|PACKAGES/);
+        return;
+      }
+      assert.equal(result.status, 0, result.stdout + result.stderr);
+      assert.equal(fs.readFileSync(phpSource, 'utf8'),
+        'deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ resolute main\n');
+      const packages = 'htop mc iproute2 nodejs php7.2-cli php7.2-mbstring php7.2-xml php7.2-gd php7.2-zip ufw build-essential npm';
+      assert.equal(result.stdout, `KEYRING installed\nAPT update\nPACKAGES ${packages}${enabled ? ' nginx postgresql-17' : ''}\nPHP -r\n`);
+      for (const [file, entry] of [
+        ['nginx.list', 'deb https://nginx.org/packages/ubuntu resolute nginx\n'],
+        ['pgdg.list', 'deb https://apt.postgresql.org/pub/repos/apt resolute-pgdg main\n'],
+      ]) {
+        assert.equal(fs.existsSync(path.join(dir, file)), enabled);
+        if (enabled) assert.equal(fs.readFileSync(path.join(dir, file), 'utf8'), entry);
+      }
+    } finally { fs.rmSync(dir, {recursive: true, force: true}); }
+  });
+}
 
 // План Ubuntu 24.04 должен восстановить компоненты, SSH и swap без новых вопросов.
 test('ubuntu 24.04: installation choices resume on the same OS', () => {
@@ -1510,11 +1597,18 @@ for(const os of ['debian','ubuntu']){
   if (!enabled) assert.equal(fs.existsSync(path.join(dir, 'calls')), false);
  });
  for(const failure of [false,true])fixture('Nginx conf.d backup '+failure,(dir,pre)=>{
-  const root=dir.replaceAll('\\','/');fs.mkdirSync(path.join(dir,'nginx/conf.d'),{recursive:true});
-  fs.writeFileSync(path.join(dir,'nginx/nginx.conf'),'original');fs.writeFileSync(path.join(dir,'nginx/conf.d/site.conf'),'server original');fs.writeFileSync(path.join(dir,'template'),'new');
-  const fn=installerFunctions(source,'prepare_nginx_config').replaceAll('/etc/nginx',root+'/nginx').replaceAll('/usr/lib/node_modules/projectdb/dist/nginx.conf',root+'/template');
-  const r=run(pre+fn+'\n'+(failure?'tar(){ return 1; }\n':'')+'prepare_nginx_config\n',dir);
+  const root = dir.replaceAll('\\', '/');
+  fs.mkdirSync(path.join(dir, 'nginx/conf.d'), {recursive: true});
+  fs.mkdirSync(path.join(dir, 'modules/projectdb/dist'), {recursive: true});
+  fs.writeFileSync(path.join(dir, 'nginx/nginx.conf'), 'original');
+  fs.writeFileSync(path.join(dir, 'nginx/conf.d/site.conf'), 'server original');
+  fs.writeFileSync(path.join(dir, 'modules/projectdb/dist/nginx.conf'), 'new');
+  const fn = installerFunctions(source, 'prepare_nginx_config').replaceAll('/etc/nginx', root + '/nginx')
+    .replaceAll('/usr/lib/node_modules/projectdb/dist/nginx.conf', '"' + root + '/modules/projectdb/dist/nginx.conf"');
+  const npm = '\nnpm() { [ "$*" = "root -g" ] && printf "%s\\n" "$PWD/modules"; }\n';
+  const r = run(pre + fn + npm + (failure ? 'tar() { echo tar-called; return 1; }\n' : '') + 'prepare_nginx_config\n', dir);
   assert.equal(r.status===0,!failure,r.stdout+r.stderr);
+  if (failure) assert.match(r.stdout, /tar-called/);
   if(failure){assert.equal(fs.readFileSync(path.join(dir,'nginx/conf.d/site.conf'),'utf8'),'server original');assert.equal(fs.readFileSync(path.join(dir,'nginx/nginx.conf'),'utf8'),'original');}
   else{const saved=run('tar -xOf .projectdb-test/backup/nginx-conf.d.tar ./site.conf',dir);assert.equal(saved.stdout,'server original');assert.equal(fs.existsSync(path.join(dir,'nginx/conf.d/site.conf')),false);}
  });

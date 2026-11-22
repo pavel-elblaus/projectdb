@@ -42,14 +42,16 @@ Run applications on Linux or Windows, in a terminal, as a Linux service or throu
 
 ### Before you begin
 
-- **Supported systems:** Debian 12, Debian 13, Ubuntu 22.04 and Ubuntu 24.04.
+- **Supported systems:** Debian 12, Debian 13, Ubuntu 22.04, Ubuntu 24.04 and Ubuntu 26.04.
 - Use a **clean minimal system** and sign in as **root**. The installer updates system packages and changes server settings.
 - If you plan to disable IPv6, connect over **IPv4** or use the server console. Setup asks before disabling IPv6.
 - **SSH:** check the port used by your current connection. The installer allows this port before enabling the firewall.
 - **Web server:** ports **80** (HTTP) and **443** (HTTPS) will be open for incoming connections.
 - **PostgreSQL:** access to port **5780** depends on the selected mode: the local network `192.168.0.0/16` (default), any IPv4 address `0.0.0.0/0`, or this server only `127.0.0.1`. In the last case, the port is not opened in the firewall.
 
-The server setup includes ProjectDB, Node.js 18, PHP 7.2 with the required extensions, and supporting tools. Nginx and PostgreSQL 17 are optional. Internet access is required to download packages.
+The server setup includes ProjectDB, Node.js with npm, PHP 7.2 with the required extensions, and supporting tools. Nginx and PostgreSQL 17 are optional. Internet access is required to download packages.
+
+On Ubuntu 26.04, the installer uses Node.js 22 and npm from Ubuntu's `universe` component. It installs PHP 7.2 from the DEB.SURY.ORG repository. On the other supported systems, it uses Node.js 18.
 
 ### Download and run
 

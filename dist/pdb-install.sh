@@ -7,7 +7,7 @@ set -Eeuo pipefail
 # Поддерживаемые операционные системы                      #
 #----------------------------------------------------------#
 # Debian 12, 13                                            #
-# Ubuntu 22.04, 24.04                                      #
+# Ubuntu 22.04, 24.04, 26.04                               #
 #----------------------------------------------------------#
 
 #----------------------------------------------------------#
@@ -22,7 +22,7 @@ fi
 
 # Определение и проверка ОС до загрузки файлов и внесения изменений.
 if [ ! -r /etc/os-release ]; then
-  echo "[PDB][ERROR] Cannot identify this operating system. Supported systems: Debian 12, 13 and Ubuntu 22.04, 24.04."
+  echo "[PDB][ERROR] Cannot identify this operating system. Supported systems: Debian 12, 13 and Ubuntu 22.04, 24.04, 26.04."
   exit 1
 fi
 
@@ -33,9 +33,9 @@ fi
 # Неподдерживаемые системы отклоняются до загрузки установщика
 case "${ID:-}:${VERSION_ID:-}:${VERSION_CODENAME:-}" in
   debian:12:bookworm|debian:13:trixie) type="debian" ;;
-  ubuntu:22.04:jammy|ubuntu:24.04:noble) type="ubuntu" ;;
+  ubuntu:22.04:jammy|ubuntu:24.04:noble|ubuntu:26.04:resolute) type="ubuntu" ;;
   *)
-    echo "[PDB][ERROR] Unsupported operating system. Supported systems: Debian 12, 13 and Ubuntu 22.04, 24.04."
+    echo "[PDB][ERROR] Unsupported operating system. Supported systems: Debian 12, 13 and Ubuntu 22.04, 24.04, 26.04."
     exit 1
   ;;
 esac

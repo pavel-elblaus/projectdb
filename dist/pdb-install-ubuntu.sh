@@ -773,9 +773,9 @@ pg_port=5780
 apt=/etc/apt/sources.list.d
 gpg=/etc/apt/trusted.gpg.d
 
-# Проверка поддерживаемой ОС — Ubuntu 22.04 и 24.04
+# Проверка поддерживаемой ОС — Ubuntu 22.04, 24.04 и 26.04
 case "${ID:-}:${VERSION_ID:-}:$codename" in
-  ubuntu:22.04:jammy|ubuntu:24.04:noble) ;;
+  ubuntu:22.04:jammy|ubuntu:24.04:noble|ubuntu:26.04:resolute) ;;
   *)
     error_message="This operating system release ($codename) is not supported by this installer."
     fail 1
@@ -977,10 +977,19 @@ add_node_repository() {
 }
 
 add_php_repository() {
-  # Репозиторий PHP 7.2
-  # Установка инструмента для подключения PPA в Ubuntu
-  install_missing software-properties-common
-  run_command add-apt-repository -y ppa:ondrej/php
+  if [ "$codename" = resolute ]; then
+    # Для Ubuntu 26.04 PHP 7.2 публикуется в APT-репозитории Surý.
+    state_temp=$(mktemp "$state_dir/.php-keyring.XXXXXX")
+    curl -fsSL -o "$state_temp" https://packages.sury.org/debsuryorg-archive-keyring.deb
+    dpkg -i "$state_temp"
+    rm -f -- "$state_temp"
+    state_temp=""
+    printf 'deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ %s main\n' \
+      "$codename" > "$apt/php.list"
+  else
+    install_missing software-properties-common
+    run_command add-apt-repository -y ppa:ondrej/php
+  fi
 }
 
 add_nginx_repository() {
@@ -996,7 +1005,10 @@ add_pg_repository() {
 }
 
 configure_repositories() {
-  run_once repository-node add_node_repository
+  # В Ubuntu 26.04 Node.js и npm устанавливаются из архива Ubuntu.
+  if [ "$codename" != resolute ]; then
+    run_once repository-node add_node_repository
+  fi
   run_once repository-php add_php_repository
   if [ "$nginx" = yes ]; then
     run_once repository-nginx add_nginx_repository
@@ -1014,6 +1026,11 @@ configure_repositories() {
 install_packages() {
   # Общие утилиты, среда Node.js, PHP с расширениями и средства сборки нативных модулей
   software="htop mc iproute2 nodejs php7.2-cli php7.2-mbstring php7.2-xml php7.2-gd php7.2-zip ufw build-essential"
+
+  # В Ubuntu 26.04 (resolute) npm устанавливается отдельным пакетом.
+  if [ "$codename" = resolute ]; then
+    software="$software npm"
+  fi
 
   # Добавление Nginx
   if [ "$nginx" = "yes" ]; then
@@ -1083,6 +1100,9 @@ install_projectdb() {
 
 # Сохранение исходной конфигурации один раз, до замены настроек
 prepare_nginx_config() {
+  local npm_root
+  npm_root=$(npm root -g)
+  [ -f "$npm_root/projectdb/dist/nginx.conf" ] || fail 1
   backup_config /etc/nginx/nginx.conf nginx.conf.original
   (umask 077; mkdir -p "$data_dir/backup")
   if [ ! -f "$data_dir/backup/nginx-conf.d.tar" ]; then
@@ -1095,7 +1115,7 @@ prepare_nginx_config() {
     state_temp=""
   fi
   rm -f /etc/nginx/conf.d/*.conf
-  cp -f /usr/lib/node_modules/projectdb/dist/nginx.conf /etc/nginx/
+  cp -f "$npm_root/projectdb/dist/nginx.conf" /etc/nginx/
 }
 
 # Длительная генерация выполняется один раз; незавершённый файл не используется
