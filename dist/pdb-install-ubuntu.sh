@@ -1025,7 +1025,7 @@ configure_repositories() {
 
 install_packages() {
   # Общие утилиты, среда Node.js, PHP с расширениями и средства сборки нативных модулей
-  software="htop mc iproute2 nodejs php7.2-cli php7.2-mbstring php7.2-xml php7.2-gd php7.2-zip ufw build-essential"
+  software="htop mc iproute2 nodejs php7.2-cli php7.2-curl php7.2-mbstring php7.2-xml php7.2-gd php7.2-zip ufw build-essential"
 
   # В Ubuntu 26.04 (resolute) npm устанавливается отдельным пакетом.
   if [ "$codename" = resolute ]; then
@@ -1243,7 +1243,7 @@ verify_installation() {
   error_message="Final verification failed. See the installation log and run the installer again after fixing the problem."
   node --version
   projectdb --help
-  php7.2 -r 'foreach (["mbstring", "dom", "gd", "zip"] as $ext) { if (!extension_loaded($ext)) { exit(1); } }'
+  php7.2 -r 'foreach (["curl", "mbstring", "dom", "gd", "zip"] as $ext) { if (!extension_loaded($ext)) { exit(1); } }'
   if [ "$nginx" = yes ]; then
     nginx -t
     systemctl is-active --quiet nginx.service
@@ -1263,7 +1263,8 @@ run_stage swap "Configuring swap memory" configure_swap
 run_stage network "Configuring the network" configure_network
 run_stage system "Updating the system" update_system
 run_stage repositories "Adding software repositories" configure_repositories
-run_stage packages "Installing required software" install_packages
+# Новый набор пакетов проверяется и при продолжении незавершённой установки.
+run_stage required-packages "Installing required software" install_packages
 run_stage firewall "Configuring the firewall" configure_firewall
 run_stage projectdb "Installing ProjectDB" install_projectdb
 if [ "$nginx" = yes ]; then

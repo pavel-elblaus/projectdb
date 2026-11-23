@@ -1092,7 +1092,10 @@ gpg() { cat; }
 install_missing() { printf 'PACKAGES %s\n' "$*"; }
 node() { :; }
 projectdb() { :; }
-php7.2() { printf 'PHP %s\n' "$1"; }
+php7.2() {
+  [[ "$2" == *'"curl"'* ]] || return 1
+  printf 'PHP %s\n' "$1"
+}
 nginx() { :; }
 systemctl() { :; }
 sudo() { :; }
@@ -1112,7 +1115,7 @@ verify_installation
       assert.equal(result.status, 0, result.stdout + result.stderr);
       assert.equal(fs.readFileSync(phpSource, 'utf8'),
         'deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ resolute main\n');
-      const packages = 'htop mc iproute2 nodejs php7.2-cli php7.2-mbstring php7.2-xml php7.2-gd php7.2-zip ufw build-essential npm';
+      const packages = 'htop mc iproute2 nodejs php7.2-cli php7.2-curl php7.2-mbstring php7.2-xml php7.2-gd php7.2-zip ufw build-essential npm';
       assert.equal(result.stdout, `KEYRING installed\nAPT update\nPACKAGES ${packages}${enabled ? ' nginx postgresql-17' : ''}\nPHP -r\n`);
       for (const [file, entry] of [
         ['nginx.list', 'deb https://nginx.org/packages/ubuntu resolute nginx\n'],

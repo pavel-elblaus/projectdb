@@ -146,7 +146,7 @@ A dedicated [installer](dist/pdb-install-raspberrypi.sh) is available for the **
 Use npm when you want to manage the software environment yourself, on Linux or Windows. Prepare:
 
 - **Node.js 18.x or newer**, including npm.
-- **PHP 7.2**, with the `mbstring`, `dom`, `gd` and `zip` extensions.
+- **PHP 7.2**, with the `curl`, `mbstring`, `dom`, `gd` and `zip` extensions.
 - PostgreSQL database connection details.
 
 Install ProjectDB:

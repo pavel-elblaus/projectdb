@@ -146,7 +146,7 @@ apt-get update && apt-get install -y curl
 Установка через npm подходит для Linux и Windows, если вы самостоятельно настраиваете программное окружение. Подготовьте:
 
 - **Node.js 18.x или новее**, включая npm.
-- **PHP 7.2** с расширениями `mbstring`, `dom`, `gd` и `zip`.
+- **PHP 7.2** с расширениями `curl`, `mbstring`, `dom`, `gd` и `zip`.
 - Данные для подключения к базе данных PostgreSQL.
 
 Установите ProjectDB:
